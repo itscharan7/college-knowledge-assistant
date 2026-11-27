@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Documents')}"></head>
+<body class="bg-body-tertiary">
+<nav th:replace="~{fragments/layout :: navbar('documents')}"></nav>
+
+<main class="container-xl py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h4 mb-0">Documents</h1>
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            Upload PDF
+        </button>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <label for="docSearch" class="visually-hidden">Search documents</label>
+            <input id="docSearch" class="form-control" placeholder="Search by title or file name">
+        </div>
+        <div class="col-md-3">
+            <label for="docStatus" class="visually-hidden">Filter by status</label>
+            <select id="docStatus" class="form-select">
+                <option value="">All statuses</option>
+                <option>UPLOADED</option><option>PROCESSING</option><option>READY</option><option>FAILED</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                <tr><th>Title</th><th>Category</th><th>Audience</th><th>Pages</th><th>Chunks</th><th>Status</th>
+                    <th>Uploaded</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody id="docBody"></tbody>
+            </table>
+        </div>
+        <div id="docEmpty" class="text-center text-secondary py-5 d-none">
+            No documents yet. Upload a PDF to get started.
+        </div>
+    </div>
+</main>
+
+<!-- Upload -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="uploadForm" class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="uploadTitle">Upload a PDF</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="dropZone" class="drop-zone mb-3" tabindex="0" role="button"
+                     aria-label="Choose or drop a PDF file">
+                    <div id="dropText">Drag a PDF here, or click to choose (max 20 MB)</div>
+                    <input id="fileInput" type="file" accept="application/pdf,.pdf" class="d-none">
+                </div>
+                <div class="mb-3">
+                    <label for="upTitle" class="form-label">Title</label>
+                    <input id="upTitle" class="form-control" maxlength="255" placeholder="Defaults to the file name">
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label for="upCategory" class="form-label">Category</label>
+                        <select id="upCategory" class="form-select" required>
+                            <option th:each="c : ${categories}" th:value="${c}" th:text="${c}">Academic</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="upAudience" class="form-label">Visible to</label>
+                        <select id="upAudience" class="form-select" required>
+                            <option th:each="a : ${audiences}" th:value="${a}" th:text="${a}">ALL</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="upDesc" class="form-label">Description (optional)</label>
+                    <textarea id="upDesc" class="form-control" rows="2" maxlength="2000"></textarea>
+                </div>
+                <div class="progress d-none" id="upProgressWrap" role="progressbar" aria-label="Upload progress">
+                    <div id="upProgress" class="progress-bar" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button id="upSubmit" type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Details -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="detailsTitle">Document details</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <dl id="detailsList" class="row mb-3"></dl>
+                <div id="detailsError" class="alert alert-danger d-none"></div>
+                <h3 class="h6">Processing log</h3>
+                <ul id="detailsLogs" class="list-group list-group-flush small"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="editForm" class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="editTitle">Edit document</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="edTitle" class="form-label">Title</label>
+                    <input id="edTitle" class="form-control" maxlength="255" required>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label for="edCategory" class="form-label">Category</label>
+                        <select id="edCategory" class="form-select">
+                            <option th:each="c : ${categories}" th:value="${c}" th:text="${c}">Academic</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="edAudience" class="form-label">Visible to</label>
+                        <select id="edAudience" class="form-select">
+                            <option th:each="a : ${audiences}" th:value="${a}" th:text="${a}">ALL</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label for="edDesc" class="form-label">Description</label>
+                    <textarea id="edDesc" class="form-control" rows="2" maxlength="2000"></textarea>
+                </div>
+                <p class="form-text">Changing visibility takes effect immediately; no re-processing is needed.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<input id="replaceInput" type="file" accept="application/pdf,.pdf" class="d-none">
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:src="@{/js/admin-documents.js}"></script>
+</body>
+</html>

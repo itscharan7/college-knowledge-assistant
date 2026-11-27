@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Create account')}"></head>
+<body class="auth-body">
+<main class="auth-card card shadow-sm border-0">
+    <div class="card-body p-4 p-md-5">
+        <h1 class="h4 mb-1">Create a student account</h1>
+        <p class="text-secondary small mb-4">Faculty accounts are created by an administrator.</p>
+
+        <div class="alert alert-danger py-2" th:if="${errors != null and !errors.isEmpty()}" role="alert">
+            <ul class="mb-0 ps-3">
+                <li th:each="e : ${errors}" th:text="${e}">error</li>
+            </ul>
+        </div>
+
+        <form th:action="@{/register}" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">Full name</label>
+                <input id="name" name="name" class="form-control" maxlength="120" required th:value="${name}"
+                       autocomplete="name">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input id="email" name="email" type="email" class="form-control" maxlength="255" required
+                       th:value="${email}" autocomplete="email">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input id="password" name="password" type="password" class="form-control" minlength="8"
+                       maxlength="72" required autocomplete="new-password" aria-describedby="pwHelp">
+                <div id="pwHelp" class="form-text">At least 8 characters, with a letter and a digit.</div>
+            </div>
+            <div class="mb-4">
+                <label for="confirmPassword" class="form-label">Confirm password</label>
+                <input id="confirmPassword" name="confirmPassword" type="password" class="form-control" required
+                       autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Create account</button>
+        </form>
+        <p class="text-center small mt-4 mb-0">Already registered? <a th:href="@{/login}">Sign in</a></p>
+    </div>
+</main>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

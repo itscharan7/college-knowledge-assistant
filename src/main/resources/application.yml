@@ -1,0 +1,121 @@
+
+spring:
+  application:
+    name: college-assistant
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/college}
+    username: ${DB_USER:college}
+    password: ${DB_PASSWORD:college}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    placeholders:
+      embedding-dimensions: ${EMBEDDING_DIMENSIONS:768}
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
+  thymeleaf:
+    cache: ${THYMELEAF_CACHE:true}
+
+  # GOOGLE GEMINI CONFIGURATION
+  ai:
+    google:
+      genai:
+        api-key: ${AI_API_KEY}
+
+        # Gemini Chat API
+        chat:
+          options:
+            model: ${AI_CHAT_MODEL:gemini-2.5-flash}
+            temperature: 0.1
+            max-output-tokens: ${AI_MAX_TOKENS:700}
+
+        # Gemini Embedding API
+        embedding:
+          api-key: ${AI_API_KEY}
+          text:
+            options:
+              model: ${AI_EMBEDDING_MODEL:text-embedding-004}
+              dimensions: ${EMBEDDING_DIMENSIONS:768}
+
+    # POSTGRESQL PGVECTOR CONFIGURATION
+    vectorstore:
+      pgvector:
+        initialize-schema: false
+        dimensions: ${EMBEDDING_DIMENSIONS:768}
+        distance-type: COSINE_DISTANCE
+        index-type: HNSW
+        table-name: vector_store
+        schema-name: public
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  categories:
+    - Academic
+    - Examination
+    - Attendance
+    - Placement
+    - Fees
+    - Timetable
+    - Department
+    - General
+    - Other
+
+  ai:
+    top-k: ${RAG_TOP_K:6}
+    similarity-threshold: ${RAG_SIMILARITY_THRESHOLD:0.5}
+    history-messages: 6
+    rewrite-enabled: true
+    max-question-length: 500
+    daily-quota: ${RAG_DAILY_QUOTA:50}
+    embed-batch-size: 20
+    embed-batch-delay-ms: 0
+    excerpt-chars: 400
+
+  chunking:
+    size-tokens: ${CHUNK_SIZE_TOKENS:500}
+    overlap-tokens: ${CHUNK_OVERLAP_TOKENS:60}
+    chars-per-token: 4
+
+  ingestion:
+    max-pages: 500
+    min-text-chars: 100
+
+  storage:
+    dir: ${STORAGE_DIR:./data/uploads}
+
+  bootstrap:
+    admin-name: ${ADMIN_NAME:Administrator}
+    admin-email: ${ADMIN_EMAIL:}
+    admin-password: ${ADMIN_PASSWORD:}
+
+logging:
+  level:
+    com.collegeassistant: INFO

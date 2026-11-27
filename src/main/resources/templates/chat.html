@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Chat')}"></head>
+<body class="chat-page">
+<nav th:replace="~{fragments/layout :: navbar('chat')}"></nav>
+
+<div class="chat-shell">
+    <aside class="chat-sidebar" aria-label="Conversations">
+        <div class="p-3 border-bottom">
+            <button id="newChat" type="button" class="btn btn-primary w-100">+ New chat</button>
+        </div>
+        <div id="convList" class="conv-list" role="list"></div>
+    </aside>
+
+    <main class="chat-main">
+        <div id="messages" class="chat-messages" aria-live="polite"></div>
+        <form id="composer" class="chat-composer" autocomplete="off">
+            <label for="question" class="visually-hidden">Your question</label>
+            <textarea id="question" class="form-control" rows="1" maxlength="500"
+                      placeholder="Ask about attendance, exams, fees, placements…" required></textarea>
+            <button id="sendBtn" type="submit" class="btn btn-primary">Send</button>
+        </form>
+    </main>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sourceDrawer" aria-labelledby="sourceTitle">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h6" id="sourceTitle">Source</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <p class="small text-secondary mb-1" id="sourceMeta"></p>
+        <blockquote class="source-excerpt" id="sourceExcerpt"></blockquote>
+        <a id="sourceOpen" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">Open PDF at this page</a>
+        <p id="sourceGone" class="small text-secondary d-none">This document is no longer available.</p>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:src="@{/js/chat.js}"></script>
+</body>
+</html>
